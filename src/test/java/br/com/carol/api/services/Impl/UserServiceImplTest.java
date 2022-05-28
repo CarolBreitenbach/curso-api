@@ -3,6 +3,7 @@ package br.com.carol.api.services.Impl;
 import br.com.carol.api.domain.User;
 import br.com.carol.api.domain.dto.UserDTO;
 import br.com.carol.api.repositories.UserRepository;
+import br.com.carol.api.services.exceptions.ObjectNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,9 +24,9 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 class UserServiceImplTest {
 
-    public static final Integer ID      = 1;
-    public static final String NAME     = "valdir";
-    public static final String EMAIL    = "valdir@gmail.com";
+    public static final Integer ID = 1;
+    public static final String NAME = "valdir";
+    public static final String EMAIL = "valdir@gmail.com";
     public static final String PASSWORD = "123";
     @InjectMocks
     private UserServiceImpl service;
@@ -51,10 +52,22 @@ class UserServiceImplTest {
         User response = service.findById(ID);
         assertNotNull(response);
         assertEquals(User.class, response.getClass());
-        assertEquals(ID,response.getId());
-        assertEquals(NAME,response.getName());
-        assertEquals(EMAIL,response.getEmail());
+        assertEquals(ID, response.getId());
+        assertEquals(NAME, response.getName());
+        assertEquals(EMAIL, response.getEmail());
     }
+
+    @Test
+    void whenFindByIdThenReturnAndObjectNotFoundException() {
+        when(repository.findById(anyInt())).thenThrow(new ObjectNotFoundException("Objeto não encontrado"));
+        try {
+            service.findById(ID);
+        } catch (Exception ex) {
+            assertEquals(ObjectNotFoundException.class, ex.getClass());
+            assertEquals("Objeto não encontrado", ex.getMessage());
+        }
+    }
+
 
     @Test
     void findAll() {
